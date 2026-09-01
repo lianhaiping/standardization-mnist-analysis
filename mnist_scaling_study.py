@@ -17,7 +17,7 @@ def _():
         (centering + unit variance) earns its place on top of that.
 
     
-        *Tested on Python 3.12.3, scikit-learn 1.8.0, numpy 2.4.4, marimo 0.24.0.*
+        *Tested on python 3.13.14, marimo 0.23.16, numpy 2.5.2, scikit-learn 1.9.0, matplotlib 3.11.1.*
     
         """
     )
