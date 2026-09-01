@@ -8,8 +8,8 @@ rows = [
     ("MLP (128)",           "adam",      "0.9737 ± 0.0004", "0.9688 ± 0.0002", -0.49, 0.04, 0),
     ("SGDClassifier",       "plain SGD", "0.9021 ± 0.0020", "0.9100 ± 0.0006", +0.79, 0.22, 1),
     ("MLP (128)",           "plain SGD", "0.9256 ± 0.0005", "0.9483 ± 0.0002", +2.27, 0.05, 1),
-    ("MLP (128)",           "adam",      "0.9170 ± 0.0011", "0.9690 ± 0.0001", +5.20, 0.33, 1),
-    ("Logistic regression", "lbfgs",     "0.8869 ± 0.0028", "0.9035 ± 0.0008", +1.67, 0.15, 1),
+    ("MLP (128)",           "adam",      "0.9170 ± 0.0011", "0.9690 ± 0.0001", +5.20, None, 1),
+    ("Logistic regression", "lbfgs",     "0.8869 ± 0.0028", "0.9035 ± 0.0008", +1.67, None, 1),
 ]
 SPLIT = 4          # rows before this index share units
 labels = [f"{r[0]}\n{r[1]}" for r in rows]
@@ -17,7 +17,8 @@ labels[SPLIT]   = "MLP (128)  adam\n100 cols x1000"
 labels[SPLIT+1] = "Logistic regression  lbfgs\n100 cols x1000"
 rows_tbl = rows
 vals   = [r[4] for r in rows]
-errs   = [r[5] for r in rows]
+errs   = [r[5] if r[5] is not None else 0.0 for r in rows]
+has_err = [r[5] is not None for r in rows]
 cols   = [BLUE if r[6] else RED for r in rows]
 
 fig = plt.figure(figsize=(10.8, 13.6), dpi=120, facecolor='white')
@@ -38,7 +39,9 @@ for i, line in enumerate([
 ax = fig.add_subplot(gs[1])
 y = range(len(rows))
 ax.barh(y, vals, color=cols, height=.55, zorder=3)
-ax.errorbar(vals, y, xerr=errs, fmt='none', ecolor='#44443f',
+_ei = [i for i, h in enumerate(has_err) if h]
+ax.errorbar([vals[i] for i in _ei], _ei,
+            xerr=[errs[i] for i in _ei], fmt='none', ecolor='#44443f',
             elinewidth=1.4, capsize=5, capthick=1.4, zorder=4)
 for i, v in enumerate(vals):
     off = 0.30 if v > 0 else -0.30
@@ -93,7 +96,8 @@ for i, r in enumerate(rows):
              color=INK, weight='bold' if win_raw else 'normal')
     axt.text(xs[3], yy, r[3], fontsize=13.5, va='center',
              color=INK, weight='normal' if win_raw else 'bold')
-    axt.text(xs[4], yy, f"{r[4]:+.2f} ± {r[5]:.2f}", fontsize=13.5, va='center',
+    _d = f"{r[4]:+.2f}" if r[5] is None else f"{r[4]:+.2f} ± {r[5]:.2f}"
+    axt.text(xs[4], yy, _d, fontsize=13.5, va='center',
              color=RED if win_raw else BLUE, weight='medium')
     axt.plot([0,1],[yy-.075]*2,
              color='#c9c8c1' if i == SPLIT-1 else '#ecebe5',
